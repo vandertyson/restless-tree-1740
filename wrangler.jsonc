@@ -18,14 +18,21 @@
   },
   // Hyperdrive binding is optional - if not provided, app will use mock data
   // To enable Hyperdrive, uncomment and configure properly:  
-  "hyperdrive": [
-    {
-      "binding": "HYPERDRIVE",
-      "id": "c556c821f0b74aa7968370aaa6fed4ca",
-      // "localConnectionString": "postgresql://nep93g:xau_w9LuKxCwhoOG0Y9UEcUo2BALa9A9VyTG0@us-east-1.sql.xata.sh/ocsdemo:main?sslmode=require"
-      "localConnectionString": "postgresql://myuser:mypassword@localhost:5432/mydatabase"
-    }
-  ],
+  // "hyperdrive": [
+  //   {
+  //     "binding": "HYPERDRIVE",
+  //     "id": "c556c821f0b74aa7968370aaa6fed4ca",
+  //     // "localConnectionString": "postgresql://nep93g:xau_w9LuKxCwhoOG0Y9UEcUo2BALa9A9VyTG0@us-east-1.sql.xata.sh/ocsdemo:main?sslmode=require"
+  //     "localConnectionString": "postgresql://myuser:mypassword@localhost:5432/mydatabase"
+  //   }
+    "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "ocsdemo",
+        "database_id": "0555ccb1-0962-4555-b385-7764e95b74d8"
+      }
+    ]
+  ,
   "placement": {
     "mode": "smart",
   },
