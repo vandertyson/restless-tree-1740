@@ -1,0 +1,44 @@
+model Package {
+  id              Int      @id @default(autoincrement())
+  name            String   @unique
+  price           Float
+  allocationPolicy AllocationPolicy? @relation(fields: [allocationPolicyId], references: [id])
+  allocationPolicyId Int?
+  overusePolicy   OverusePolicy?     @relation(fields: [overusePolicyId], references: [id])
+  overusePolicyId Int?
+}
+
+model Account {
+  id           Int    @id @default(autoincrement())
+  customerId   String
+  type         String
+  balance      Float
+}
+
+model AllocationPolicy {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  details AllocationPolicyDetail[]
+}
+
+model AllocationPolicyDetail {
+  id           Int      @id @default(autoincrement())
+  policyId     Int
+  accountType  String
+  amount       Float
+  policy       AllocationPolicy @relation(fields: [policyId], references: [id])
+}
+
+model OverusePolicy {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  details OverusePolicyDetail[]
+}
+
+model OverusePolicyDetail {
+  id           Int     @id @default(autoincrement())
+  policyId     Int
+  accountType  String
+  pricePerUnit Float
+  policy       OverusePolicy @relation(fields: [policyId], references: [id])
+}
