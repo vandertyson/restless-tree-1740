@@ -93,12 +93,12 @@ export function DataTabs() {
           >
             🔄 Làm mới
           </button>
-          <button
+          {/* <button
             onClick={() => setShowModal(true)}
             className="text-sm px-3 py-1 bg-blue-600 text-white rounded"
           >
             ➕ Thêm
-          </button>
+          </button> */}
         </div>
       </div>
 

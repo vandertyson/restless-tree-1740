@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 
 export function ChatBox() {
-  const websocketUrl = "wss://8787-vandertyson-restlesstre-xnr399i6hhz.ws-us118.gitpod.io/message"
+  // const websocketUrl = "wss://8787-vandertyson-restlesstre-xnr399i6hhz.ws-us118.gitpod.io/message"
+  const websocketUrl = "wss://ocs-websocket-worker-production.ptson117.workers.dev/message"
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -85,10 +86,10 @@ export function ChatBox() {
         {messages.map((msg, index) => (
           <div key={index} className={`message-wrapper ${msg.type}`}>
             {msg.type === 'user' && (
-              <img src="https://via.placeholder.com/40?text=U" alt="User Avatar" className="avatar" />
+              <img src="https://png.pngtree.com/png-vector/20230316/ourmid/pngtree-admin-and-customer-service-job-vacancies-vector-png-image_6650726.png" alt="User Avatar" className="avatar" />
             )}
             {msg.type === 'response' && (
-              <img src="https://via.placeholder.com/40?text=D" alt="DeepSeek Avatar" className="avatar" />
+              <img src="https://crystalpng.com/wp-content/uploads/2025/01/deepseek-logo-03.png" alt="DeepSeek Avatar" className="avatar" />
             )}
             <div className={`message ${msg.type}`}>
               <ReactMarkdown>{msg.content}</ReactMarkdown>
