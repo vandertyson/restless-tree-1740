@@ -1,81 +1,108 @@
-import { useState } from "react";
+import React, { useState, useEffect, useRef } from 'react';
 
 export function ChatBox() {
-  const [messages, setMessages] = useState([
-    { role: "assistant", content: "Xin chào! Tôi có thể hỗ trợ bạn về gói cước hoặc tài khoản." }
-  ]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
+  const websocketUrl = 'wss://af948fa0-my-websocket-worker.ptson117.workers.dev/mesage'
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const ws = useRef(null);
+  const messagesEndRef = useRef(null);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
+  // Auto-scroll to the latest message
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
-    const newMessages = [...messages, { role: "user", content: input }];
-    setMessages(newMessages);
-    setInput("");
-    setLoading(true);
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        user_id: "u123", // hoặc lấy từ context
-        session_id: "s001", // dùng uuid nếu cần
-        messages: newMessages,
-        new_message: input
-      })
-    });
+  // Initialize WebSocket connection
+  useEffect(() => {
+    ws.current = new WebSocket(websocketUrl);
 
-    const data = await res.json();
-
-    const assistantReply = {
-      role: "assistant",
-      content: data.reply
+    ws.current.onopen = () => {
+      console.log('WebSocket connected');
+      setMessages((prev) => [...prev, { type: 'system', content: 'Connected to chat server' }]);
     };
 
-    const reasoningMessage = data.reasoning
-      ? { role: "assistant", content: `🤖 Reasoning:\n${data.reasoning}`, meta: "reasoning" }
-      : null;
+    ws.current.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('Received:', data);
 
-    setMessages([...newMessages, reasoningMessage, assistantReply].filter(Boolean));
-    setLoading(false);
+        if (data.error) {
+          setMessages((prev) => [...prev, { type: 'error', content: data.error }]);
+          setIsProcessing(false);
+        } else if (data.progress) {
+          setMessages((prev) => [...prev, { type: 'progress', content: data.progress }]);
+          setIsProcessing(true); // Disable input during progress
+        } else if (data.response) {
+          setMessages((prev) => [...prev, { type: 'response', content: data.response }]);
+          setIsProcessing(false); // Re-enable input after response
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+        setMessages((prev) => [...prev, { type: 'error', content: 'Error parsing server message' }]);
+        setIsProcessing(false);
+      }
+    };
+
+    ws.current.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      setMessages((prev) => [...prev, { type: 'error', content: 'WebSocket error occurred' }]);
+      setIsProcessing(false);
+    };
+
+    ws.current.onclose = () => {
+      console.log('WebSocket closed');
+      setMessages((prev) => [...prev, { type: 'system', content: 'Disconnected from chat server' }]);
+      setIsProcessing(false);
+    };
+
+    // Cleanup on unmount
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
+  }, [websocketUrl]);
+
+  // Handle sending messages
+  const sendMessage = (e) => {
+    e.preventDefault();
+    if (!input.trim() || isProcessing || !ws.current || ws.current.readyState !== WebSocket.OPEN) {
+      return;
+    }
+
+    const message = { message: input.trim() };
+    ws.current.send(JSON.stringify(message));
+    setMessages((prev) => [...prev, { type: 'user', content: input }]);
+    setInput('');
   };
 
   return (
-    <div className="flex flex-col h-full w-full p-4">
-      <div className="flex-1 overflow-auto space-y-2 mb-2">
-        {messages.map((m, idx) => (
-          <div
-            key={idx}
-            className={`p-2 rounded max-w-xl whitespace-pre-wrap ${
-              m.role === "user"
-                ? "bg-blue-100 self-end"
-                : m.meta === "reasoning"
-                ? "bg-yellow-100 text-sm text-gray-700 self-start"
-                : "bg-gray-100 self-start"
-            }`}
-          >
-            {m.content}
+    <div className="chatbox-container">
+      <div className="chatbox-messages">
+        {messages.map((msg, index) => (
+          <div key={index} className={`message ${msg.type}`}>
+            {msg.content}
           </div>
         ))}
-        {loading && <div className="text-sm text-gray-400">Đang xử lý...</div>}
+        <div ref={messagesEndRef} />
       </div>
-      <div className="flex gap-2">
+      <form className="chatbox-input" onSubmit={sendMessage}>
         <input
+          type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-          placeholder="Nhập câu hỏi hoặc yêu cầu..."
-          className="flex-1 border px-3 py-2 rounded"
+          placeholder={isProcessing ? 'Processing...' : 'Type your message...'}
+          disabled={isProcessing}
         />
-        <button
-          onClick={sendMessage}
-          disabled={loading}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Gửi
+        <button type="submit" disabled={isProcessing || !input.trim()}>
+          Send
         </button>
-      </div>
+      </form>
     </div>
   );
-}
+};

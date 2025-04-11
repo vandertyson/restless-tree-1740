@@ -173,7 +173,7 @@ function App() {
         <DataTabs />
       </div>
       <div className="w-1/2">
-        <ChatBox />
+        <ChatBox/>
       </div>
     </div>
    </div>
