@@ -1,91 +1,210 @@
 .chatbox-container {
-    display: flex;
-    flex-direction: column;
-    height: 90%;
-    max-width: 100%;
-    margin: 20px auto;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+  max-width: 90%; /* Tăng nhẹ để rộng rãi hơn */
+  margin: 20px auto;
+  border: 1px solid #e0e0e0; /* Viền nhạt hơn */
+  border-radius: 12px; /* Bo góc mềm mại */
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Bóng nhẹ */
+  background-color: #f0f2f5; /* Nền xám nhạt */
+}
+
+.chatbox-messages {
+  flex: 1;
+  padding: 15px; /* Tăng padding cho thoáng */
+  overflow-y: auto;
+  background-color: #f0f2f5; /* Đồng bộ nền */
+}
+
+.message-wrapper {
+  display: flex;
+  align-items: flex-start;
+  margin: 12px 0; /* Tăng khoảng cách giữa các tin nhắn */
+}
+
+.message-wrapper.user {
+  flex-direction: row-reverse;
+}
+
+.message-wrapper.response {
+  flex-direction: row;
+}
+
+.avatar {
+  width: 36px; /* Nhỏ hơn một chút */
+  height: 36px;
+  border-radius: 50%;
+  margin: 0 12px; /* Tăng cách avatar với tin nhắn */
+  border: 1px solid #e0e0e0; /* Viền nhẹ cho avatar */
+}
+
+.message {
+  padding: 12px 16px; /* Padding rộng rãi hơn */
+  border-radius: 10px; /* Bo góc mềm hơn */
+  max-width: 70%;
+  font-size: 15px; /* Giảm nhẹ font cho tinh tế */
+  line-height: 1.4; /* Tăng khoảng cách dòng */
+  word-wrap: break-word; /* Đảm bảo text không tràn */
+}
+
+/* Markdown styles */
+.message p {
+  margin: 0;
+}
+
+.message strong {
+  font-weight: 600; /* Đậm nhẹ hơn */
+}
+
+.message em {
+  font-style: italic;
+}
+
+.message code {
+  background-color: #e9ecef;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+}
+
+.message pre {
+  background-color: #e9ecef;
+  padding: 10px;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+}
+
+.message pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.message.user {
+  background-color: #e0f7fa; /* Xanh dương nhạt cho user */
+  color: #333; /* Văn bản tối để dễ đọc */
+}
+
+.message.progress {
+  background-color: #e9ecef; /* Xám nhạt cho progress */
+  color: #666;
+  font-size: 12px;
+  padding: 6px 10px; /* Nhỏ gọn hơn */
+  opacity: 0.9;
+}
+
+.message.response {
+  background-color: #ffffff; /* Trắng cho response */
+  color: #333;
+  border: 1px solid #e0e0e0; /* Viền nhẹ để phân biệt */
+}
+
+.message.error {
+  background-color: #f8e1e1; /* Đỏ nhạt cho error */
+  color: #666;
+}
+
+.message.system {
+  background-color: #e9ecef; /* Xám nhạt cho system */
+  color: #666;
+  text-align: center;
+  font-style: italic;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.typing-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 12px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.typing-dots {
+  display: flex;
+  margin-right: 8px;
+}
+
+.typing-dots span {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #666;
+  border-radius: 50%;
+  margin: 0 2px;
+  animation: typing 0.8s infinite;
+}
+
+.typing-dots span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.typing-dots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.typing-dots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes typing {
+  0%, 80%, 100% {
+    opacity: 0.3;
   }
-  
-  .chatbox-messages {
-    flex: 1;
-    padding: 10px;
-    overflow-y: auto;
-    background-color: #f9f9f9;
+  40% {
+    opacity: 1;
   }
-  
-  .message {
-    margin: 5px 0;
-    padding: 10px;
-    border-radius: 5px;
-    max-width: 80%;
-    font-size: 16px; /* Default font size for most messages */
-  }
-  
-  .message.user {
-    background-color: #007bff;
-    color: white;
-    align-self: flex-end;
-    margin-left: auto;
-  }
-  
-  .message.progress {
-    background-color: #ffc107;
-    color: black;
-    font-size: 12px; /* Smaller font size for progress */
-    padding: 5px 8px; /* Reduced padding for compactness */
-    opacity: 0.9; /* Slightly faded for less emphasis */
-  }
-  
-  .message.response {
-    background-color: #28a745;
-    color: white;
-  }
-  
-  .message.error {
-    background-color: #dc3545;
-    color: white;
-  }
-  
-  .message.system {
-    background-color: #6c757d;
-    color: white;
-    text-align: center;
-    font-style: italic;
-  }
-  
-  .chatbox-input {
-    display: flex;
-    padding: 10px;
-    background-color: #fff;
-    border-top: 1px solid #ccc;
-  }
-  
-  .chatbox-input input {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-right: 10px;
-  }
-  
-  .chatbox-input input:disabled {
-    background-color: #e9ecef;
-    cursor: not-allowed;
-  }
-  
-  .chatbox-input button {
-    padding: 8px 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .chatbox-input button:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-  }
+}
+
+.chatbox-input {
+  display: flex;
+  padding: 15px; /* Tăng padding cho thoáng */
+  background-color: #ffffff; /* Nền trắng */
+  border-top: 1px solid #e0e0e0;
+}
+
+.chatbox-input input {
+  flex: 1;
+  padding: 10px 12px; /* Input rộng rãi hơn */
+  border: 1px solid #e0e0e0;
+  border-radius: 8px; /* Bo góc mềm */
+  margin-right: 12px;
+  font-size: 15px;
+  outline: none; /* Bỏ viền focus mặc định */
+  transition: border-color 0.2s; /* Hiệu ứng khi focus */
+}
+
+.chatbox-input input:focus {
+  border-color: #b0bec5; /* Xám nhạt khi focus */
+}
+
+.chatbox-input input:disabled {
+  background-color: #f7f7f7; /* Nền nhạt hơn khi disabled */
+  cursor: not-allowed;
+}
+
+.chatbox-input button {
+  padding: 10px 20px; /* Button lớn hơn một chút */
+  background-color: #b0bec5; /* Xám nhạt cho button */
+  color: #333;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.2s; /* Hiệu ứng hover */
+}
+
+.chatbox-input button:hover:not(:disabled) {
+  background-color: #90a4ae; /* Xám đậm hơn khi hover */
+}
+
+.chatbox-input button:disabled {
+  background-color: #e0e0e0;
+  cursor: not-allowed;
+}
