@@ -2,23 +2,43 @@ import { useState } from "react";
 
 export function ChatBox() {
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Xin chào! Tôi có thể hỗ trợ gì về gói cước?" }
+    { role: "assistant", content: "Xin chào! Tôi có thể hỗ trợ bạn về gói cước hoặc tài khoản." }
   ]);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const sendMessage = async () => {
+    if (!input.trim()) return;
+
     const newMessages = [...messages, { role: "user", content: input }];
     setMessages(newMessages);
     setInput("");
+    setLoading(true);
 
-    const res = await fetch("/api/ai/chat", {
+    const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: newMessages }),
+      body: JSON.stringify({
+        user_id: "u123", // hoặc lấy từ context
+        session_id: "s001", // dùng uuid nếu cần
+        messages: newMessages,
+        new_message: input
+      })
     });
+
     const data = await res.json();
 
-    setMessages([...newMessages, { role: "assistant", content: data.reply }]);
+    const assistantReply = {
+      role: "assistant",
+      content: data.reply
+    };
+
+    const reasoningMessage = data.reasoning
+      ? { role: "assistant", content: `🤖 Reasoning:\n${data.reasoning}`, meta: "reasoning" }
+      : null;
+
+    setMessages([...newMessages, reasoningMessage, assistantReply].filter(Boolean));
+    setLoading(false);
   };
 
   return (
@@ -27,25 +47,31 @@ export function ChatBox() {
         {messages.map((m, idx) => (
           <div
             key={idx}
-            className={`p-2 rounded max-w-md ${
-              m.role === "user" ? "bg-blue-100 self-end" : "bg-gray-100 self-start"
+            className={`p-2 rounded max-w-xl whitespace-pre-wrap ${
+              m.role === "user"
+                ? "bg-blue-100 self-end"
+                : m.meta === "reasoning"
+                ? "bg-yellow-100 text-sm text-gray-700 self-start"
+                : "bg-gray-100 self-start"
             }`}
           >
-            <div>{m.content}</div>
+            {m.content}
           </div>
         ))}
+        {loading && <div className="text-sm text-gray-400">Đang xử lý...</div>}
       </div>
       <div className="flex gap-2">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-          placeholder="Nhập tin nhắn..."
+          placeholder="Nhập câu hỏi hoặc yêu cầu..."
           className="flex-1 border px-3 py-2 rounded"
         />
         <button
           onClick={sendMessage}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
+          disabled={loading}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
         >
           Gửi
         </button>

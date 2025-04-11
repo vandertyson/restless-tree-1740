@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { cors } from 'hono/cors'
 import postgres from "postgres";
 import booksRouter from "./routes/books";
 import bookRelatedRouter from "./routes/book-related";
@@ -6,9 +7,14 @@ import { mockBooks } from "./lib/mockData";
 import packages from './routes/package';
 import accounts from './routes/accounts';
 import allocations from './routes/allocations';
+import sqlExecutor from './routes/sql';
 
 const app = new Hono();
-
+app.use('/api/*', cors({
+  origin: '*', // Allow all for testing
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+}));
 // Setup SQL client middleware
 app.use("*", async (c, next) => {
   // Check if Hyperdrive binding is available
@@ -48,7 +54,7 @@ app.route("/api/books/:id/related", bookRelatedRouter);
 app.route('/api/packages', packages);
 app.route('/api/accounts', accounts);
 app.route('/api/allocations', allocations);
-// app.route('/api/sql', allocations);
+app.route('/api/sql', sqlExecutor);
 
 
 // Catch-all route for static assets
