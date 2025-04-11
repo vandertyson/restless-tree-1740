@@ -17,6 +17,14 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [genres, setGenres] = useState([]);
   const [dataSource, setDataSource] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   // Get route parameters
   const { bookId } = params;
@@ -111,73 +119,33 @@ function App() {
     }
   };
 
+  // return (
+  //   <div>
+  //     <div className="flex h-screen">
+  //       <div className="w-1/2 border-r">
+  //         <DataTabs />
+  //       </div>
+  //       <div className="w-1/2">
+  //         <ChatBox />
+  //       </div>
+  //     </div>
+  //   </div>
+  // );
   return (
-    <div>
-      <div className="layout" style={{"display":"None"}}>
-        <Sidebar
-          genres={genres}
-          activeGenre={activeGenre}
-          onSelectGenre={handleSelectGenre}
-          counts
-        />
+    <div className="h-screen w-full flex flex-col md:flex-row">
+      {/* Bảng dữ liệu: chỉ hiển thị trên màn hình >=768px */}
+      {!isMobile && (
+        <div className="md:w-1/2 h-full border-r overflow-auto">
+          <DataTabs />
+        </div>
+      )}
 
-        <main className="main-content">
-          {/* Breadcrumbs for main library page */}
-          {!bookId && (
-            <Breadcrumbs
-              items={[
-                { label: "All Books", value: null },
-                ...(activeGenre
-                  ? [{ label: activeGenre, value: activeGenre }]
-                  : []),
-              ]}
-              onNavigate={(value) => {
-                if (value === null) {
-                  handleSelectGenre(null);
-                }
-              }}
-            />
-          )}
-
-          <div className="page-header">
-            <h1>{activeGenre ? `${activeGenre} Books` : "My Library"}</h1>
-            <p className="text-gray-900">
-              {activeGenre
-                ? `Explore our collection of ${activeGenre.toLowerCase()} books`
-                : "Discover your next favorite book"}
-            </p>
-
-            {/* Show banner only when using mock data */}
-            {dataSource === "mock" && <MockDataBanner />}
-          </div>
-
-          {bookId ? (
-            loading ? (
-              <div className="flex justify-center items-center py-20">
-                <div className="h-10 w-10 border-2 border-blue-800 border-t-transparent rounded-full animate-spin"></div>
-              </div>
-            ) : bookDetail ? (
-              <BookDetail bookData={bookDetail} />
-            ) : (
-              <div className="text-center py-20 text-gray-600">
-                Error loading book details
-              </div>
-            )
-          ) : (
-            <BooksList onSelectBook={handleSelectBook} filter={activeGenre} />
-          )}
-        </main>
-      </div>
-      <div className="flex h-screen">
-      <div className="w-1/2 border-r">
-        <DataTabs />
-      </div>
-      <div className="w-1/2">
-        <ChatBox/>
+      {/* Chat box: luôn full trên mobile, 1/2 trên desktop */}
+      <div className="w-full md:w-1/2 h-full overflow-hidden">
+        <ChatBox />
       </div>
     </div>
-   </div>
-  );
+  )
 }
 
 export default App;
